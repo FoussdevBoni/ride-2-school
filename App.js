@@ -38,10 +38,7 @@ const Navigation = ()=>{
 }
 export default function App() {
 
-useEffect(()=>{
-  sendRandomPushNotification()
-  
-},[])
+
   return (
 <NativeBaseProvider>
  <PaperProvider theme={theme}>

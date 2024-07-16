@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { View } from 'react-native';
-import { Button, List } from 'react-native-paper';
+import { ActivityIndicator, Button, List } from 'react-native-paper';
 import ChildItem from '../../../items/User/HomeSScreen/ChildItem';
 import axios from 'axios';
 import { getChildren } from '../../../../utils/api';
@@ -37,27 +37,19 @@ function Children({user}) {
 };
 
   console.log(children)
-<<<<<<< HEAD
 const selectedEnfants = user ? children.filter((child) => child.isChecked):[];
 
    if (user) {
        return (
-=======
-const selectedEnfants = children.filter((child) => child.isChecked);
-
-    return (
->>>>>>> 67b7d1f25d92989efde0379c003185b7c3941007
-       <View style={styles.container}>
+        <>
+          {
+            children.length > 0 ?   <View style={styles.container}>
         <List.Subheader>
            Enfants ajoutés
         </List.Subheader>
           <List.Section>
             {
-<<<<<<< HEAD
            children?.map((child , index)=>{
-=======
-           children.map((child , index)=>{
->>>>>>> 67b7d1f25d92989efde0379c003185b7c3941007
                  return(
                     <ChildItem key={index} child={child} onSwitchChange={handleSwitchChange}/>
                  )
@@ -65,11 +57,7 @@ const selectedEnfants = children.filter((child) => child.isChecked);
             }
               
         </List.Section>
-<<<<<<< HEAD
          {selectedEnfants.length>0 && <View style={{padding: 12}}>
-=======
-          <View style={{padding: 12}}>
->>>>>>> 67b7d1f25d92989efde0379c003185b7c3941007
              <TouchableOpacity  onPress={()=>{
                   navigation.navigate('Suivre mes Enfants' , {selectedEnfants})
                }} style={styles.button}>
@@ -79,16 +67,14 @@ const selectedEnfants = children.filter((child) => child.isChecked);
           
 
            </TouchableOpacity>
-<<<<<<< HEAD
           </View>}
+       </View>: <View style={{flex: 1 , justifyContent: 'center' , alignItems: 'center'}}>
+          <ActivityIndicator color={colors.primary} size={40}/>
        </View>
+          }
+        </>
     );
    }
-=======
-          </View>
-       </View>
-    );
->>>>>>> 67b7d1f25d92989efde0379c003185b7c3941007
 }
 
 export default Children;

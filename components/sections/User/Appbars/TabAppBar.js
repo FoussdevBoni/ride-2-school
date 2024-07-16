@@ -1,12 +1,14 @@
 // MyAppbar.js
-import React from 'react';
-import { Appbar, Avatar, Searchbar, Title } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import { Appbar, Avatar, Badge, Searchbar, Title } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../../../../assets/styles/colors';
+import { getnotifications } from '../../../../functions/getnotifications';
+import { speak } from '../../../../functions/alertSound';
 
 const TabAppBar = ({user}) => {
-
+const [notifications , setNotifications] = useState([])
 
   const navigation = useNavigation();
 
@@ -24,13 +26,22 @@ const TabAppBar = ({user}) => {
 
   // Obtenez la première lettre du nom de l'utilisateur
   const avatarInitial = groupName?.charAt(0).toUpperCase();
+ useEffect(()=>{
+    getnotifications(user , setNotifications)
+   
 
+  } , [])
   return (
     <Appbar.Header style={styles.header}>
       <Appbar.Action icon={() => <Avatar.Text color={colors.primary} size={30} label={avatarInitial} style={styles.avatar} />} onPress={_openProfile} />
         <Appbar.Content title={groupName}  color='white'>
         </Appbar.Content>
       <Appbar.Action icon="bell" color='white' onPress={_handleNotificationIconPress}/>
+         {
+          notifications.length <=0 &&  <Badge style={styles.badge}>
+        {notifications.length}
+      </Badge>
+}
     </Appbar.Header>
   );
 };
@@ -54,6 +65,13 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 10,
     borderRadius: 30,
+  },
+    badge: {
+    position: 'absolute',
+    top: 10,
+    right: 25,
+    color: 'white',
+    backgroundColor: 'red',
   },
 });
 

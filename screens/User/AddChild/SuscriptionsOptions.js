@@ -66,6 +66,8 @@ const navigation = useNavigation()
   return (
     <ImageBackground  source={require('../../../assets/images/bg.png')}
       style={styles.backgroundImage}>
+              <View style={styles.overlay} />
+
       <StatusBar style='light'/>
       <StackAppBarr title='Choisir une option ' styles={{bgColor: colors.primary, textColor: 'white'}}/>
       <View style={styles.container}>
@@ -108,6 +110,11 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+  },
+    overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#3498db',
+    opacity: 0.8,
   },
   title: {
     fontSize: 32,

@@ -12,12 +12,14 @@ import {
 } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { Ionicons } from '@expo/vector-icons';
-import { Divider, List } from 'react-native-paper';
+import { Divider, List, ProgressBar } from 'react-native-paper';
 
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors } from '../../assets/styles/colors';
 import StackAppBarr from '../../components/sections/User/Appbars/StackAppBar';
 import { takePhoto } from './../../functions/uploadPhoto';
+import Br from '../../components/widgets/br/br';
+import { Rating } from 'react-native-elements';
 
 
 
@@ -41,14 +43,47 @@ const addPhoto = async ()=>{
   const response = await takePhoto('library' , 'profiles/enfants/'+date)
   if (response.uploadResp?.downloadUrl) {
     child.photo = response.uploadResp?.downloadUrl
-    console.log(child.photo)
+    console.log(child?.photo)
 
   }
 }
- 
+  const performance = child.performance || 0.3;
+  const revenuSatus = child.revenuSatus || 0.9;
+
+  const getStatusColor = (status) => {
+    if (status <= 0.3) {
+      return 'red';
+    } else if (status > 0.3 && status < 0.5) {
+      return 'orange';
+    } else {
+      return 'green';
+    }
+  };
+
+  const items = [
+   
+    {
+      icon: 'star',
+      label: 'Note globale',
+      render: <Rating startingValue={5} readonly imageSize={15} />,
+    },
+    {
+      icon: 'user',
+      label: 'Niveau d\'abonnement',
+      render: (
+        <ProgressBar
+          progress={revenuSatus}
+          color={getStatusColor(revenuSatus)}
+          style={{ backgroundColor: '#eff1f5', height: 10, borderRadius: 5 }}
+        />
+      ),
+    },
+  ];
   const navigation= useNavigation()
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+     <>
+      {
+        child &&   <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <StackAppBarr title={child?.nom} goBack={navigation.goBack}/>
       <View style={styles.container}>
         <ScrollView>
@@ -117,11 +152,64 @@ const addPhoto = async ()=>{
 
             <List.Section>
       
-      
+           {
+            child.abonnement && child.chauffeur &&  <View style={styles.list}>
+            <View style={styles.listHeader}>
+              <Text style={styles.listTitle}>Progression des données</Text>
+
+              <TouchableOpacity
+                onPress={() => {
+                  // handle onPress
+                }}
+              ></TouchableOpacity>
+            </View>
+
+            <View
+              contentContainerStyle={styles.listContent}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+            >
+              {items.map(({ icon, label, render }, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => {
+                    // handle onPress
+                  }}
+                >
+                  <View style={styles.card}>
+                    <View style={styles.cardTop}>
+                      <View style={styles.cardIcon}>
+                        <FeatherIcon color="#000" name={icon} size={24} />
+                      </View>
+
+                      <View style={styles.cardBody}>
+                        <Text style={styles.cardTitle}>{label}</Text>
+                        <Br size={10} />
+                        {render}
+                      </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+           }
+
+          
+        <View style={styles.list}>
+            <View style={styles.listHeader}>
+          <Text style={styles.listTitle}>Informations sur l'enfants</Text>
+
+              <TouchableOpacity
+                onPress={() => {
+                  // handle onPress
+                }}
+              ></TouchableOpacity>
+            </View>        
           <TouchableOpacity >
             <List.Item
               title="Nom et prénom"
- left={() => <Ionicons size={30} name="person" style={{marginLeft: 10}}/>}              description={child.nom}
+            left={() => <Ionicons size={30} name="person" style={{marginLeft: 10}}/>}              description={child?.nom}
             />
           </TouchableOpacity>
           <Divider />
@@ -129,7 +217,7 @@ const addPhoto = async ()=>{
             <List.Item
               title="Ecole"
               left={() => <Ionicons size={30} name="school" style={{marginLeft: 10}}/>}
-               description={child.ecole.nom}
+               description={child?.ecole?.nom}
 
             />
           </TouchableOpacity>
@@ -139,7 +227,7 @@ const addPhoto = async ()=>{
             <List.Item
               title="Classe"
               left={() => <Ionicons size={30} name="school-outline" style={{marginLeft: 10}}/>}
-                            description={child.class}
+                            description={child?.class}
 
             />
           </TouchableOpacity>
@@ -170,7 +258,9 @@ const addPhoto = async ()=>{
             />
           </TouchableOpacity>
           <Divider />
-          <TouchableOpacity
+           {
+            !form.abonnement ? (
+              <TouchableOpacity
                onPress={()=>{
                 navigation.navigate('itineraire-config' , {child})
                }}
@@ -181,7 +271,41 @@ const addPhoto = async ()=>{
                   </Text>
                 </View>
          </TouchableOpacity>
+            ):  <TouchableOpacity
+               onPress={()=>{
+                  let  selectedEnfants = []
+                  selectedEnfants.push(child)
+                  navigation.navigate('Suivre mes Enfants' , {selectedEnfants})
+               }}
+                style={{ flex: 1, paddingHorizontal: 6 }}>
+                <View style={styles.btnPrimary}>
+                  <Text style={styles.btnPrimaryText}>
+                    Suivre le trajet
+                  </Text>
+                </View>
+         </TouchableOpacity>
+           }
+           <Br size={20}/>
+           {
+           child.chauffeur && (
+               <TouchableOpacity
+               onPress={()=>{
+                   
+                  navigation.navigate('driver-profile' , {child})
+               }}
+                style={{ flex: 1, paddingHorizontal: 6 }}>
+                <View style={styles.btnPrimary}>
+                  <Text style={styles.btnPrimaryText}>
+                    Voir le profile du chauffeur
+                  </Text>
+                </View>
+            </TouchableOpacity>
+            )
+           }
+      </View>
         </List.Section>
+
+
           </View>
 
           
@@ -189,6 +313,8 @@ const addPhoto = async ()=>{
         
       </View>
     </SafeAreaView>
+      }
+     </>
   );
 }
 

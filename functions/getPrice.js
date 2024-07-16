@@ -33,7 +33,7 @@ export const getPrice = (serviceType , distance , places=1)=>{
       return priceRef*places
   }else if(distance > distanceRef){
        
-      return (prixReel + 0.4*ecart)*places
+      return (prixReel -  0.9*ecart)*places
       
   }else if (distance < distanceRef) {
        return (prixReel + 0.2*ecart)*places

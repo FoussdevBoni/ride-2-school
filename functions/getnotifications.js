@@ -1,89 +1,47 @@
-import { useState, useEffect, useRef } from 'react';
-import * as Device from 'expo-device';
+import { onValue, ref } from "firebase/database"
+import { speak } from "./alertSound"
+// pushNotificationHandler.js
+import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import Constants from 'expo-constants';
+import { db } from "../firebase/firebaseConfig";
 
-export const notifications = [
-  {
-    id:0 ,
-    title: 'Heure de départ !',
-    body: 'Il est temps de partir pour l\'école.',
-    date: '10/21/2023'
-  },
-  {
-    id: 1,
-    title: 'Alerte maladie !',
-    body: 'Un élève est malade, veuillez prendre des dispositions.',
-    date: '10/21/2023'
-  },
-  {
-    id: 2,
-    title: 'Retard exceptionnel !',
-    body: 'Le trajet risque d\'être retardé en raison de travaux routiers.',
-    date: '10/21/2023'
-  },
-  // ... Ajoutez d'autres notifications selon vos besoins
-];
+export async function displayPushNotification(notification) {
 
-function getRandomElement(arr) {
-  const randomIndex = Math.floor(Math.random() * arr.length);
-  return arr[randomIndex];
-}
-
-async function sendPushNotification(expoPushToken, notification) {
-  const message = {
-    to: expoPushToken,
-    sound: 'default',
-    title: notification.title,
-    body: notification.body,
-    data: { someData: 'goes here' },
-  };
-
-  await fetch('https://exp.host/--/api/v2/push/send', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Accept-encoding': 'gzip, deflate',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(message),
-  });
-}
-
-async function registerForPushNotificationsAsync() {
-  let token;
-
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
-      return;
-    }
-    token = await Notifications.getExpoPushTokenAsync({
-      projectId: Constants.manifest.extra.projectId,
+  try {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: notification.title ?? 'R2S',
+        body: notification.message ?? 'Notification R2S',
+        data: notification.data ?? {},
+      },
+      trigger: null, // notification immédiate
     });
-    console.log(token);
-  } else {
-    alert('Must use physical device for Push Notifications');
-  }
-
-  return token.data;
-}
-
-async function sendRandomPushNotification(displayFunction) {
-  const expoPushToken = await registerForPushNotificationsAsync();
-  if (expoPushToken) {
-    const randomNotification = getRandomElement(notifications);
-    sendPushNotification(expoPushToken, randomNotification);
-    displayFunction(randomNotification);
-    console .log(randomNotification)
-    alert('gegegegeg')
+  } catch (error) {
+    console.error('Failed to display push notification:', error);
   }
 }
 
-export default sendRandomPushNotification;
+
+export function getnotifications(user , setNotifications) {
+  const path = user.id ? 'notifications/'+user.id: 'notifications/'+user._id
+ const notificationsRef = ref(db, path)
+
+    onValue(notificationsRef , (sn)=>{
+      const data = sn.val()
+      if (data) {
+        const dataArray = Object.entries(data).map(([key , value])=>({
+          ...value,
+          id: key
+        }))
+        const filtered = dataArray.filter(item=>(item.read===undefined||item.read===false))
+        console.log(data)
+        filtered.forEach((item)=>{
+          speak(item.message)
+          displayPushNotification(item)
+        })
+
+       
+        setNotifications(filtered)
+      }
+    })}
+

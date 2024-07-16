@@ -7,6 +7,7 @@ import { onValue, ref, set } from 'firebase/database';
 import { db } from '../../../../firebase/firebaseConfig';
 import { Paragraph, Title } from 'react-native-paper';
 import MapViewDirections from 'react-native-maps-directions';
+import { speak } from '../../../../functions/alertSound';
 
 const Map = ({user , enfants}) => {
   const [location, setLocation] = useState(null);
@@ -25,7 +26,7 @@ const Map = ({user , enfants}) => {
 
     function getDriversPosition() {
         const enfant = enfants[2]
-        const driverId = enfant.chauffeur || '662f7219e0c118cc16276a3f'
+        const driverId = enfant?.chauffeur || '662f7219e0c118cc16276a3f'
       const dataRef = ref(db, 'locations/'+driverId)
       onValue(dataRef , (snapshot)=>{
         const data = snapshot.val()
@@ -37,7 +38,6 @@ const Map = ({user , enfants}) => {
       })
    
   }
-
 
 
   getDriversPosition()
@@ -113,6 +113,8 @@ const Map = ({user , enfants}) => {
         'km'
       );
       setDistance(totalDistance.toFixed(2));
+          speak('Le chauffeur est à '+ totalDistance.toFixed(2) +' km de votre enfant')
+
     }
   }, [location, strokeColor, strokeWidth]);
 
@@ -120,7 +122,8 @@ const Map = ({user , enfants}) => {
   if (!location) {
     return <Text>Chargement</Text>;
   }
-
+  
+ 
   return (
       <View style={styles.container}>
       <MapView style={styles.map}  initialRegion={{
@@ -154,7 +157,7 @@ const Map = ({user , enfants}) => {
             console.log("Drag end", e.nativeEvent.coordinate)
           }}
           icon={() => <Ionicons name='home' size={50} color={'red'} />}
-                    image={require('../../../../assets/images/icon-car.png')}
+             image={require('../../../../assets/images/icon-car.png')}
 
         />
         {
@@ -169,7 +172,7 @@ const Map = ({user , enfants}) => {
                 title={item.nom}
                 pinColor="red"
                 // icon={() => <Ionicons name='home' size={50} color={'red'} />}
-                 image={require('../../../../assets/images/icon-school.png')}
+                 image={require('../../../../assets/images/icon-student.png')}
 
               />
             )
@@ -192,7 +195,7 @@ const Map = ({user , enfants}) => {
       </MapView>
       <View style={styles.infoBar}>
          <View style={{flexDirection: 'column' , justifyContent: 'center'}}>
-           <Title>
+           <Title style={{fontSize: 14}}>
              Vitesse
            </Title>
            <Paragraph style={{marginLeft: 0}}>
@@ -200,15 +203,24 @@ const Map = ({user , enfants}) => {
            </Paragraph>
          </View>
          <View style={{flexDirection: 'column' , justifyContent: 'center'}}>
-           <Title>
-             50 min
+           <Title style={{fontSize: 14}}>
+             distance restante
            </Title>
-           <Paragraph style={{marginLeft: -15}}>
-            {distance} km - 00:11
+           <Paragraph style={{marginLeft: 15}}>
+            {distance} km 
+           </Paragraph>
+         </View>
+          <View style={{flexDirection: 'column' , justifyContent: 'center'}}>
+           <Title style={{fontSize: 14}}>
+             Arrive dans: 
+           </Title>
+           <Paragraph style={{marginLeft: 1}}>
+            {10} minutes 
            </Paragraph>
          </View>
        
       </View>
+      
     </View>
   );
 };

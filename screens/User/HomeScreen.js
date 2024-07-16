@@ -7,9 +7,18 @@ import Br from '../../components/widgets/br/br';
 import { ScrollView } from 'react-native-gesture-handler';
 import Children from '../../components/sections/User/HomeScreen/Children';
 import { useNavigation } from '@react-navigation/native';
+import { speak } from '../../functions/alertSound';
+import { useDispatch } from 'react-redux';
+import { hasSpoken } from '../../redurcer/userSlice';
 
 function HomeScreen({user}) {
   const navigation = useNavigation()
+  const dispatch = useDispatch()
+  const isSpoken = dispatch(hasSpoken(true))
+  console.log(user)
+   speak('Bonjour  '+ user?.nom+'. Pour ajouter un enfant , veillez cliquer sur le bouton en blanc. Pour suivre le trajet d\'un enfant ,  selectionner ce dernier et cliquer sur le bouton "suivre le trajet"'  , isSpoken)
+   
+
   return (
    <ImageBackground
       source={require('../../assets/images/bg.png')} 

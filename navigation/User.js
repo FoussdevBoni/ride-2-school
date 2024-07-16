@@ -30,6 +30,7 @@ import ReservationForm from '../screens/Cantine/Reservation';
 import ChildProfile from '../screens/User/ChildProfile';
 import SuscriptionsOptions from '../screens/User/AddChild/SuscriptionsOptions';
 import PayementForm from '../screens/User/AddChild/PaiementForm';
+import DriverProfile from '../screens/User/DriverScreen';
 
 
 
@@ -165,6 +166,11 @@ const User = () => {
          <Stack.Screen name="payement-form" options={{ headerShown: false }}>
               {props=><PayementForm {...props} user={user} />}
         </Stack.Screen>
+
+         <Stack.Screen name="driver-profile" options={{ headerShown: false }}>
+              {props=><DriverProfile {...props} user={user} />}
+        </Stack.Screen>
+
    </Stack.Navigator>
     </NavigationContainer>
  </View>

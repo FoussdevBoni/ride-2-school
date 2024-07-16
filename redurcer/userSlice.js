@@ -16,10 +16,13 @@ export const UserSlice = createSlice({
         logout: (state) => {
             state.user = null;
             state.conected = false;
-        }
+        },
+        hasSpoken:  (state) => {
+            state.sokenStatus = false;
+        },
     }
 })
 
-export const { login, logout, isConected } = UserSlice.actions;
+export const { login, logout, isConected  , hasSpoken} = UserSlice.actions;
 
 export default UserSlice.reducer;

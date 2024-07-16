@@ -22,7 +22,6 @@ export default function ChildForm({user}) {
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
   const dispatch = useDispatch();
   const [form, setForm] = useState({
-    abonnement: '65fad65b5c542bf7f4a33009',
     ecole: null,
     heureDepart: '',
     heureSortie: '',

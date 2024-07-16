@@ -37,12 +37,14 @@ export default function PayementForm() {
 
   const handleSubmit = () => {
     // Validation des champs
-    if (!form.nom || !form.moyenDePaiement || !form.identifiant) {
+    if (!form?.nom || !form?.moyenDePaiement || !form?.identifiant) {
       alert("Veuillez remplir tous les champs");
       return;
     }
-    // Dispatch de l'action pour soumettre le formulaire
-    dispatch(/* action to submit form */);
+    setForm({
+      ...form,
+            ...souscription,
+            abonnement: '65fad65b5c542bf7f4a33009'    });    navigation.navigate('child-profile' , {form})
   };
 
   return (

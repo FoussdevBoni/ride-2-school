@@ -11,3 +11,5 @@ export const getSchools = `${URL}/ecole/getSchools`
 export const addChild= `${URL}/parent/addChild/`
 export const getChildren =  `${URL}/enfant/getEnfantParent`
 
+export const getDriver = `${URL}/chauffeur/oneChauffeur`
+
