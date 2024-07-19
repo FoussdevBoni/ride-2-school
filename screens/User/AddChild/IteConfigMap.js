@@ -38,10 +38,9 @@ const MapRoutes = ({user}) => {
 
   const [distance , setDistance] = useState(0)
   const originLocation = { latitude: origin?.lat ?? 0, longitude: origin?.lng ?? 0 };
-  const destinationLocation = { latitude: destination?.lat ?? 0, longitude: destination?.lng ?? 0 };
+  const destinationLocation = { latitude: parseFloat(destination?.latitude) ?? 0, longitude: parseFloat(destination?.longitude) ?? 0 };
   const mapRef = useRef(null)
-const [strokeWidth , setstrokeWidth] = useState(4)
-  const [strokeColor, setstrokeColor] = useState('red')
+
   useEffect(() => {
     if (originLocation && destinationLocation) {
       setRoute([originLocation, destinationLocation]);

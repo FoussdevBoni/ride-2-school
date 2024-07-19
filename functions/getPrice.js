@@ -41,14 +41,14 @@ export const getPrice = (serviceType , distance , places=1)=>{
   }
   }else if (serviceType==='Privé') {
     
-  if (distance===distanceRef) {
-      return priceRef
+   if (distance===distanceRef) {
+      return priceRef*places
   }else if(distance > distanceRef){
        
-      return prixReel + 0.4*ecart
+      return (prixReel -  0.9*ecart)*places
       
   }else if (distance < distanceRef) {
-       return prixReel + 0.2*ecart
+       return (prixReel + 0.2*ecart)*places
 
   }
   } 

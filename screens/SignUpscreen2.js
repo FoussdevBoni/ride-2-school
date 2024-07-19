@@ -12,33 +12,75 @@ import {
 } from 'react-native';
 import { colors } from '../assets/styles/colors';
 import { StatusBar } from 'expo-status-bar';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Image } from 'react-native';
 import CountrySelector from '../components/sections/CountrySelector';
 import { CountryButton, CountryPicker } from 'react-native-country-codes-picker';
 import Br from '../components/widgets/br/br';
-import { Switch } from 'react-native-paper';
+import { ActivityIndicator, Switch } from 'react-native-paper';
+import axios from 'axios';
+import { createParent } from '../utils/api';
+import { useDispatch } from 'react-redux';
+import { isConected, login } from '../redurcer/userSlice';
+import { FlatList } from 'react-native';
 
 export default function Register2() {
   const navigation = useNavigation();
  const [isAgreed, setIsAgreed] = useState(false);
   const [btnopacity, setBtnopacity] = useState(0.5);
+  const route = useRoute()
+  const {userData} = route.params
   const [form, setForm] = useState({
-    nom: '',
-    email: '',
     password: '',
-    country: '',
-    city: '',
     idType: '',
-    phoneNumber: '',
+    cni: '',
+    ...userData
   });
-
+  const dispatch = useDispatch()
+   const [loading , setLoading ]= useState(false)
   function loginScreen() {
     navigation.navigate('connexion');
   }
+    const [query, setQuery] = useState('');
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
 
-  
+  const renderItem = ({ item }) => (
+    <TouchableOpacity onPress={() => {
+      setFilteredSuggestions([]);
+      setQuery(item);
+      setForm({ ...form, idType: item })
+    }}>
+      <View style={styles.suggestionItem}>
+        <Text>{item}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const handleSignUp = async ()=>{
+    setLoading(true)
+    console.log(form)
+    try {
+      const response = await axios.post(createParent , form)
+      const data = response.data
+      console.log(data)
+       setLoading(false)
+       dispatch(login(data))
+       dispatch(isConected())
+    } catch (error) {
+       setLoading(false)
+      console.log(error)
+    }
+  }
+
+  const idTypes = ["Carte d'identité" , "Passeport" , "Autres"] 
+  const handleFilter = (value) => {
+    setQuery(value);
+    const filtered = idTypes.filter(suggestion =>
+      suggestion.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredSuggestions(value ? filtered : []);
+  };
 
   return (
     <ImageBackground 
@@ -46,7 +88,7 @@ export default function Register2() {
       style={styles.backgroundImage}
     >
       <View style={styles.overlay} />
-      <ScrollView style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
         <StatusBar style="light" />
 
         <View style={styles.container}>
@@ -84,21 +126,32 @@ export default function Register2() {
               <Ionicons name="card-outline" size={20} color="#ffffff" style={styles.inputIcon} />
               <TextInput
                 clearButtonMode="while-editing"
-                onChangeText={idType => setForm({ ...form, idType })}
+               onChangeText={idType => {
+                handleFilter(idType)
+                setForm({ ...form, idType })
+               }}
                 placeholder="Type de document d'identification"
                 placeholderTextColor="#ffffff"
                 style={styles.inputControl}
-                value={form.idType} />
+                value={query} />
+                 {filteredSuggestions.length > 0 && (
+                    <FlatList
+                      data={filteredSuggestions}
+                      renderItem={renderItem}
+                      keyExtractor={(item, index) => index.toString()}
+                      style={styles.autocomplete}
+                    />
+                  )}
             </View>
             <View style={styles.input}>
               <Ionicons name="card-outline" size={20} color="#ffffff" style={styles.inputIcon} />
               <TextInput
                 clearButtonMode="while-editing"
-                onChangeText={idType => setForm({ ...form, idType })}
+                onChangeText={cni => setForm({ ...form, cni })}
                 placeholder="Le numéro du document fourni"
                 placeholderTextColor="#ffffff"
                 style={styles.inputControl}
-                value={form.idType} />
+                value={form.cni} />
             </View>
             <View style={styles.switchContainer}>
       <Switch
@@ -122,10 +175,12 @@ export default function Register2() {
             
 
             <View style={styles.formAction}>
-              <TouchableOpacity disabled={!isAgreed}>
+              <TouchableOpacity disabled={!isAgreed} onPress={()=>{
+                handleSignUp()
+              }}>
                 <View style={[styles.btn , {opacity: btnopacity}]}>
                   <Text style={styles.btnText}>
-                    Inscrivez-vous
+                    {loading ? <ActivityIndicator color={colors.primary} /> : "Inscrivez-vous"}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -133,8 +188,8 @@ export default function Register2() {
               <TouchableOpacity onPress={loginScreen}>
                 <View style={styles.secondaryBtn}>
                   <Text style={{  fontSize: 18,
-    lineHeight: 26,
-    color:'white',}}>
+                  lineHeight: 26,
+                  color:'white',}}>
                     Déjà inscrit ? 
                   </Text>
                   <Text style={[styles.secondaryBtnText , {marginLeft: 10}]}>
@@ -145,7 +200,7 @@ export default function Register2() {
             </View>
           </View>
         </View>
-      </ScrollView>
+      </View>
     </ImageBackground>
   );
 }
@@ -274,6 +329,30 @@ const styles = StyleSheet.create({
     padding: 10, 
     width: width*0.8,
     color: 'white'
+  },
+  
+  ecoleInputContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 12,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+  autocomplete: {
+    position: 'absolute',
+    top: 50, 
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    elevation: 5,
+    zIndex: 9999
+  },
+  suggestionItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc'
   },
 });
 

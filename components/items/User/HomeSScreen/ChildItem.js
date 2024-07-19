@@ -1,27 +1,22 @@
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Checkbox, Divider, List } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Avatar, Card, Divider, List, Paragraph, Switch, Title, Checkbox } from 'react-native-paper';
-import { getChildren } from '../../../../utils/api';
 import { useSelector } from 'react-redux';
 
-function ChildItem({ user, child, onSwitchChange }) {
+function ChildItem({ child, onSwitchChange  }) {
     const navigation = useNavigation();
     const schools = useSelector((state) => state.schools.schools);
-    const school = schools.filter(school => (school._id === child?.ecole));
+    const school = schools.find(school => school._id === child?.ecole);
     const [checked, setChecked] = useState(child.isChecked);
 
     const handleCheckboxChange = () => {
-        setChecked(!checked);
-        onSwitchChange(child.id, !checked);
+        setChecked(!checked); 
+        onSwitchChange(child.id, !checked); 
     };
 
-    const form = child
-
     return (
-        <TouchableOpacity onPress={()=>{navigation.navigate('child-profile' , {form})}} style={{ paddingHorizontal: 8 }}>
+        <TouchableOpacity onPress={() => navigation.navigate('child-profile', { child })} style={{ paddingHorizontal: 8 }}>
             <List.Item
                 style={{ backgroundColor: 'white', marginVertical: 1 }}
                 title={child?.nom}
@@ -33,12 +28,11 @@ function ChildItem({ user, child, onSwitchChange }) {
                         />
                     </View>
                 )}
-                description={school[0]?.nomEcole || ''}
+                description={school?.nomEcole || ''}
                 right={() => (
-                    <Checkbox
-                        status={checked ? 'checked' : 'unchecked'}
-                        onPress={handleCheckboxChange}
-                    />
+                    <View style={{width: 20 , height: 20 , backgroundColor: 'green' , borderRadius: 10 , marginTop: 20}}>
+
+                    </View>
                 )}
             />
             <Divider />
@@ -56,12 +50,5 @@ const styles = StyleSheet.create({
     },
     profilContainer: {
         padding: 5,
-    },
-    signal: {
-        width: 20,
-        height: 20,
-        backgroundColor: 'orange',
-        borderRadius: 20,
-        marginTop: 20,
     },
 });

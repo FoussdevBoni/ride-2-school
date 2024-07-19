@@ -30,20 +30,20 @@ export default function SuscriptionsOptions() {
     label: 'Le bus',
     prix:  15000,
     description: 'Le trans port avec le bus aefsb heev  fafavd gddye dkfb qvfssbsgd gdd.',
-    route: 'payement-form'
+    route: 'choix-trajets'
   },
   {
     label: 'Mini-com',
     prix: getPrice('Minicom' , suscription.distance , 1).toFixed(0),
     description: 'Le minicom est le services nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
-    route: 'payement-form'
+    route: 'choix-trajets'
   },
 
    {
     label: 'Privé',
     prix: getPrice('Privé' , suscription.distance).toFixed(0),
     description: 'Le minicom est le services nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
-    route: 'payement-form'
+    route: 'choix-trajets'
   },
 
 ]: [
@@ -52,14 +52,14 @@ export default function SuscriptionsOptions() {
     label: 'Mini-com',
     prix: getPrice('Minicom' , suscription.distance , 1).toFixed(0),
     description: 'Le minicom est le services nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
-    route: 'payement-form'
+    route: 'choix-trajets'
   },
 
    {
     label: 'Privé',
     prix: getPrice('Privé' , suscription.distance).toFixed(0),
     description: 'Le minicom est le services nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
-    route: 'payement-form'
+    route: 'choix-trajets'
   },
 ]
 const navigation = useNavigation()

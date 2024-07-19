@@ -170,6 +170,9 @@ const User = () => {
          <Stack.Screen name="driver-profile" options={{ headerShown: false }}>
               {props=><DriverProfile {...props} user={user} />}
         </Stack.Screen>
+        <Stack.Screen name="choix-trajets" options={{ headerShown: false }}>
+              {props=><ChoixPreferenceForm {...props} user={user} />}
+        </Stack.Screen>
 
    </Stack.Navigator>
     </NavigationContainer>

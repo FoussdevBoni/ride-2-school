@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Dimensions,
@@ -6,14 +6,13 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Text,
   Image,
+  Alert,
 } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { Ionicons } from '@expo/vector-icons';
 import { Divider, List, ProgressBar } from 'react-native-paper';
-
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors } from '../../assets/styles/colors';
 import StackAppBarr from '../../components/sections/User/Appbars/StackAppBar';
@@ -21,32 +20,31 @@ import { takePhoto } from './../../functions/uploadPhoto';
 import Br from '../../components/widgets/br/br';
 import { Rating } from 'react-native-elements';
 
-
-
 const CARD_WIDTH = Math.min(Dimensions.get('screen').width * 0.75, 400);
 
 export default function ChildProfile() {
-    const route = useRoute()
-    const {form} = route.params
-    const child = {
-      ...form, 
-      ecole: form?.ecole
-    }
+  const route = useRoute();
+  const { child } = route.params;
+
+
   const stats = [
-  { label: 'Ecole', value: form?.ecole?.nom },
-  { label: 'Classe', value:  child?.class },
-  { label: 'Date de naissance', value: child?.dateNaissance },
-];
+    { label: 'Ecole', value: child?.ecole?.nom },
+    { label: 'Classe', value: child?.class },
+    { label: 'Date de naissance', value: child?.dateNaissance },
+  ];
 
-const addPhoto = async ()=>{
-  const date = new Date().toDateString()
-  const response = await takePhoto('library' , 'profiles/enfants/'+date)
-  if (response.uploadResp?.downloadUrl) {
-    child.photo = response.uploadResp?.downloadUrl
-    console.log(child?.photo)
+  const [photo, setPhoto] = useState('');
 
-  }
-}
+  const addPhoto = async () => {
+    const date = new Date().toDateString();
+    const response = await takePhoto('library', 'profiles/enfants/' + date);
+    if (response.uploadResp?.downloadUrl) {
+      child.photo = response.uploadResp?.downloadUrl;
+      setPhoto(response.uploadResp?.downloadUrl);
+      console.log(child?.photo);
+    }
+  };
+
   const performance = child.performance || 0.3;
   const revenuSatus = child.revenuSatus || 0.9;
 
@@ -61,7 +59,6 @@ const addPhoto = async ()=>{
   };
 
   const items = [
-   
     {
       icon: 'star',
       label: 'Note globale',
@@ -79,242 +76,213 @@ const addPhoto = async ()=>{
       ),
     },
   ];
-  const navigation= useNavigation()
+
+  const navigation = useNavigation();
+
   return (
-     <>
-      {
-        child &&   <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <StackAppBarr title={child?.nom} goBack={navigation.goBack}/>
-      <View style={styles.container}>
-        <ScrollView>
-          <View style={styles.content}>
-            <View style={styles.profile}>
-              <View style={styles.profileTop}>
-                <View style={styles.avatar}>
-                  <Image
-                    alt=""
-                    source={{
-                      uri: child?.photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
-                    }}
-                    style={styles.avatarImg} />
-
-                 
-                </View>
-
-                <View style={styles.profileBody}>
-                  <Text style={styles.profileTitle}>{child?.nom}</Text>
-
-                  <Text style={styles.profileSubtitle}>
-                    <Text style={{ color: '#266EF1' }}>
-                      {child?.email}
-                    </Text>
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.stats}>
-              {stats.map(({ label, value }, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.statsItem,
-                    index === 0 && { borderLeftWidth: 0 },
-                  ]}>
-                  <Text style={styles.statsItemText}>{label}</Text>
-
-                  <Text style={styles.statsItemValue}>{value}</Text>
-                </View>
-              ))}
-            </View>
-
-            <View style={styles.contentActions}>
-              <TouchableOpacity
-               
-                style={{ flex: 1, paddingHorizontal: 6 }}>
-                <View style={styles.btnPrimary}>
-                  <Text style={styles.btnPrimaryText}>Modifier</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                 addPhoto()
-                }}
-                style={{ flex: 1, paddingHorizontal: 6 }}>
-                <View style={styles.btn}>
-                  <Text style={styles.btnText}>
-                    Ajouter une photo
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            <List.Section>
-      
-           {
-            child.abonnement && child.chauffeur &&  <View style={styles.list}>
-            <View style={styles.listHeader}>
-              <Text style={styles.listTitle}>Progression des données</Text>
-
-              <TouchableOpacity
-                onPress={() => {
-                  // handle onPress
-                }}
-              ></TouchableOpacity>
-            </View>
-
-            <View
-              contentContainerStyle={styles.listContent}
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-            >
-              {items.map(({ icon, label, render }, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => {
-                    // handle onPress
-                  }}
-                >
-                  <View style={styles.card}>
-                    <View style={styles.cardTop}>
-                      <View style={styles.cardIcon}>
-                        <FeatherIcon color="#000" name={icon} size={24} />
-                      </View>
-
-                      <View style={styles.cardBody}>
-                        <Text style={styles.cardTitle}>{label}</Text>
-                        <Br size={10} />
-                        {render}
-                      </View>
+    <>
+      {child && (
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+          <StackAppBarr title={child?.nom} goBack={navigation.goBack} />
+          <View style={styles.container}>
+            <ScrollView>
+              <View style={styles.content}>
+                <View style={styles.profile}>
+                  <View style={styles.profileTop}>
+                    <View style={styles.avatar}>
+                      <Image
+                        alt=""
+                        source={{
+                          uri: child?.photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+                        }}
+                        style={styles.avatarImg}
+                      />
+                    </View>
+                    <View style={styles.profileBody}>
+                      <Text style={styles.profileTitle}>{child?.nom}</Text>
+                      <Text style={styles.profileSubtitle}>
+                        <Text style={{ color: '#266EF1' }}>
+                          {child?.email}
+                        </Text>
+                      </Text>
                     </View>
                   </View>
-                </TouchableOpacity>
-              ))}
-            </View>
+                </View>
+                <View style={styles.stats}>
+                  {stats.map(({ label, value }, index) => (
+                    <View
+                      key={index}
+                      style={[
+                        styles.statsItem,
+                        index === 0 && { borderLeftWidth: 0 },
+                      ]}
+                    >
+                      <Text style={styles.statsItemText}>{label}</Text>
+                      <Text style={styles.statsItemValue}>{value}</Text>
+                    </View>
+                  ))}
+                </View>
+                <View style={styles.contentActions}>
+                  <TouchableOpacity
+                    style={{ flex: 1, paddingHorizontal: 6 }}
+                  >
+                    <View style={styles.btnPrimary}>
+                      <Text style={styles.btnPrimaryText}>Modifier</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      addPhoto();
+                    }}
+                    style={{ flex: 1, paddingHorizontal: 6 }}
+                  >
+                    <View style={styles.btn}>
+                      <Text style={styles.btnText}>
+                        Ajouter une photo
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+                <List.Section>
+                  {child.abonnement && child.chauffeur && (
+                    <View style={styles.list}>
+                      <View style={styles.listHeader}>
+                        <Text style={styles.listTitle}>Progression des données</Text>
+                      </View>
+                      <View
+                        contentContainerStyle={styles.listContent}
+                        horizontal={true}
+                        showsHorizontalScrollIndicator={false}
+                      >
+                        {items.map(({ icon, label, render }, index) => (
+                          <TouchableOpacity
+                            key={index}
+                          >
+                            <View style={styles.card}>
+                              <View style={styles.cardTop}>
+                                <View style={styles.cardIcon}>
+                                  <FeatherIcon color="#000" name={icon} size={24} />
+                                </View>
+                                <View style={styles.cardBody}>
+                                  <Text style={styles.cardTitle}>{label}</Text>
+                                  <Br size={10} />
+                                  {render}
+                                </View>
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                  <View style={styles.list}>
+                    <View style={styles.listHeader}>
+                      <Text style={styles.listTitle}>Information sur l'enfant</Text>
+                    </View>
+                    <TouchableOpacity>
+                      <List.Item
+                        title="Nom et prénom"
+                        left={() => <Ionicons size={30} name="person" style={{ marginLeft: 10 }} />}
+                        description={child?.nom}
+                      />
+                    </TouchableOpacity>
+                    <Divider />
+                    <TouchableOpacity>
+                      <List.Item
+                        title="Ecole"
+                        left={() => <Ionicons size={30} name="school" style={{ marginLeft: 10 }} />}
+                        description={child?.ecole?.nom}
+                      />
+                    </TouchableOpacity>
+                    <Divider />
+                    <TouchableOpacity>
+                      <List.Item
+                        title="Classe"
+                        left={() => <Ionicons size={30} name="school-outline" style={{ marginLeft: 10 }} />}
+                        description={child?.class}
+                      />
+                    </TouchableOpacity>
+                    <Divider />
+                    <TouchableOpacity>
+                      <List.Item
+                        title="Date de naissance"
+                        left={() => <Ionicons name="calendar" size={30} style={{ marginLeft: 10 }} />}
+                        description={child?.dateNaissance}
+                      />
+                    </TouchableOpacity>
+                    <Divider />
+                    <TouchableOpacity>
+                      <List.Item
+                        title="Heure de départ"
+                        description={child?.heureDepart}
+                        left={() => <Ionicons name="time" size={30} style={{ marginLeft: 10 }} />}
+                      />
+                    </TouchableOpacity>
+                    <Divider />
+                    <TouchableOpacity>
+                      <List.Item
+                        title="Heure de sortie"
+                        description={child?.heureSortie}
+                        left={() => <Ionicons name="time-outline" size={30} style={{ marginLeft: 10 }} />}
+                      />
+                    </TouchableOpacity>
+                    <Divider />
+                    {!child.abonnement ? (
+                      <TouchableOpacity
+                        onPress={() => {
+                          if (child.photo&&child.photo!=='') {
+                            navigation.navigate('itineraire-config', { child });
+                          }else{
+                            Alert.alert('Erreur' , "Veillez ajouter d'abord une photo de votre enfant")
+                          }
+                        }}
+                        style={{ flex: 1, paddingHorizontal: 6 }}
+                      >
+                        <View style={styles.btnPrimary}>
+                          <Text style={styles.btnPrimaryText}>
+                            Configurer l'itinéraire
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        onPress={() => {
+                          let selectedEnfants = [];
+                          selectedEnfants.push(child);
+                          navigation.navigate('Suivre mes Enfants', { selectedEnfants });
+                        }}
+                        style={{ flex: 1, paddingHorizontal: 6 }}
+                      >
+                        <View style={styles.btnPrimary}>
+                          <Text style={styles.btnPrimaryText}>
+                            Suivre le trajet
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    )}
+                    <Br size={20} />
+                    {child.chauffeur && (
+                      <TouchableOpacity
+                        onPress={() => {
+                          navigation.navigate('driver-profile', { child });
+                        }}
+                        style={{ flex: 1, paddingHorizontal: 6 }}
+                      >
+                        <View style={styles.btnPrimary}>
+                          <Text style={styles.btnPrimaryText}>
+                            Voir le profil du chauffeur
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </List.Section>
+              </View>
+            </ScrollView>
           </View>
-           }
-
-          
-        <View style={styles.list}>
-            <View style={styles.listHeader}>
-          <Text style={styles.listTitle}>Informations sur l'enfants</Text>
-
-              <TouchableOpacity
-                onPress={() => {
-                  // handle onPress
-                }}
-              ></TouchableOpacity>
-            </View>        
-          <TouchableOpacity >
-            <List.Item
-              title="Nom et prénom"
-            left={() => <Ionicons size={30} name="person" style={{marginLeft: 10}}/>}              description={child?.nom}
-            />
-          </TouchableOpacity>
-          <Divider />
-          <TouchableOpacity >
-            <List.Item
-              title="Ecole"
-              left={() => <Ionicons size={30} name="school" style={{marginLeft: 10}}/>}
-               description={child?.ecole?.nom}
-
-            />
-          </TouchableOpacity>
-          <Divider />
-          {/* Ajoutez d'autres éléments de la liste ci-dessous */}
-            <TouchableOpacity >
-            <List.Item
-              title="Classe"
-              left={() => <Ionicons size={30} name="school-outline" style={{marginLeft: 10}}/>}
-                            description={child?.class}
-
-            />
-          </TouchableOpacity>
-          <Divider />
-          <TouchableOpacity >
-            <List.Item
-              title="Date de naissance"
-              left={() => <Ionicons name="calendar" size={30} style={{marginLeft: 10}}/>}
-                            description={child.dateNaissance}
-
-            />
-          </TouchableOpacity>
-          <Divider />
-          <TouchableOpacity >
-            <List.Item
-              title="Heure de départ"
-                            description={child.heureDepart}
-
-              left={() => <Ionicons name="time" size={30} style={{marginLeft: 10}}/>}
-            />
-          </TouchableOpacity>
-           <Divider />
-          <TouchableOpacity onPress={() => handlePress('Confidentialité')}>
-            <List.Item
-              title="Heure de sortie"
-              description={child.heureSortie}
-              left={() =><Ionicons name="time-outline" size={30} style={{marginLeft: 10}}/>}
-            />
-          </TouchableOpacity>
-          <Divider />
-           {
-            !form.abonnement ? (
-              <TouchableOpacity
-               onPress={()=>{
-                navigation.navigate('itineraire-config' , {child})
-               }}
-                style={{ flex: 1, paddingHorizontal: 6 }}>
-                <View style={styles.btnPrimary}>
-                  <Text style={styles.btnPrimaryText}>
-                    Configuer l'itinéraire
-                  </Text>
-                </View>
-         </TouchableOpacity>
-            ):  <TouchableOpacity
-               onPress={()=>{
-                  let  selectedEnfants = []
-                  selectedEnfants.push(child)
-                  navigation.navigate('Suivre mes Enfants' , {selectedEnfants})
-               }}
-                style={{ flex: 1, paddingHorizontal: 6 }}>
-                <View style={styles.btnPrimary}>
-                  <Text style={styles.btnPrimaryText}>
-                    Suivre le trajet
-                  </Text>
-                </View>
-         </TouchableOpacity>
-           }
-           <Br size={20}/>
-           {
-           child.chauffeur && (
-               <TouchableOpacity
-               onPress={()=>{
-                   
-                  navigation.navigate('driver-profile' , {child})
-               }}
-                style={{ flex: 1, paddingHorizontal: 6 }}>
-                <View style={styles.btnPrimary}>
-                  <Text style={styles.btnPrimaryText}>
-                    Voir le profile du chauffeur
-                  </Text>
-                </View>
-            </TouchableOpacity>
-            )
-           }
-      </View>
-        </List.Section>
-
-
-          </View>
-
-          
-        </ScrollView>
-        
-      </View>
-    </SafeAreaView>
-      }
-     </>
+        </SafeAreaView>
+      )}
+    </>
   );
 }
 
@@ -324,219 +292,150 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: 0,
-    flex: 1
+    backgroundColor: '#fff',
   },
-  /** Content */
   content: {
-    paddingTop: 12,
-    paddingHorizontal: 24,
+    flex: 1,
+    paddingHorizontal: 12,
   },
-  contentActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 18,
-    marginHorizontal: -6,
-    marginBottom: 0,
-  },
-  /** Profile */
   profile: {
-    paddingTop: 4,
-    paddingBottom: 16,
+    width: '100%',
+    padding: 12,
   },
   profileTop: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
     justifyContent: 'space-between',
-    marginBottom: 16,
   },
   profileBody: {
-    flexGrow: 1,
+    justifyContent: 'center',
     flexShrink: 1,
-    flexBasis: 0,
-    paddingLeft: 16,
+    paddingLeft: 20,
   },
   profileTitle: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: 'bold',
-    lineHeight: 32,
-    color: '#121a26',
-    marginBottom: 6,
+    color: '#1f1f1f',
+    marginBottom: 8,
   },
   profileSubtitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#778599',
+    fontSize: 16,
+    color: '#1f1f1f',
   },
- 
-
-
   avatar: {
-    position: 'relative',
+    width: 90,
+    height: 90,
   },
   avatarImg: {
-    width: 80,
-    height: 80,
-    borderRadius: 9999,
+    width: '100%',
+    height: '100%',
+    borderRadius: 99,
   },
-
-  /** Stats */
   stats: {
-    backgroundColor: '#fff',
     flexDirection: 'row',
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: '#90a0ca',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    elevation: 1,
+    justifyContent: 'center',
+    marginTop: 10,
+    backgroundColor: '#F0F2F4',
+    borderRadius: 5,
+    padding: 8,
   },
   statsItem: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 0,
+    flex: 1,
+    paddingHorizontal: 12,
+    borderLeftColor: '#E5E5E5',
     borderLeftWidth: 1,
-    borderColor: 'rgba(189, 189, 189, 0.32)',
   },
   statsItemText: {
-    fontSize: 14,
-    fontWeight: '400',
-    lineHeight: 18,
-    color: '#778599',
-    marginBottom: 5,
+    fontSize: 12,
+    fontWeight: '500',
+    textAlign: 'center',
+    color: '#A8ADB7',
+    marginBottom: 6,
   },
   statsItemValue: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    lineHeight: 20,
-    color: '#121a26',
+    textAlign: 'center',
   },
-  /** Button */
-  btn: {
+  contentActions: {
+    marginTop: 16,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderWidth: 2,
-    backgroundColor: 'transparent',
-    borderColor: colors.primary,
   },
-  btnText: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: '700',
-    color: colors.primary,
+  btn: {
+    backgroundColor: '#F0F2F4',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
   },
   btnPrimary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    paddingVertical: 8,
+    backgroundColor: colors.primary,
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    borderWidth: 2,
-    backgroundColor:colors.primary,
-    borderColor: colors.primary,
+    borderRadius: 10,
+  },
+  btnText: {
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'center',
+    color: '#333',
   },
   btnPrimaryText: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'center',
     color: '#fff',
   },
-  /** List */
   list: {
-    marginTop: 16,
+    marginTop: 10,
+    paddingHorizontal: 8,
+    backgroundColor: '#F0F2F4',
+    borderRadius: 5,
   },
   listHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
+    paddingHorizontal: 12,
+    paddingTop: 15,
+    paddingBottom: 15,
   },
   listTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    lineHeight: 22,
-    color: '#121a26',
-  },
-  listAction: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '500',
-    lineHeight: 20,
-    color: '#778599',
   },
   listContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 18,
+    paddingVertical: 10,
   },
-  /** Card */
   card: {
     width: CARD_WIDTH,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
     backgroundColor: '#fff',
-    marginHorizontal: 6,
-    shadowColor: '#90a0ca',
+    padding: 15,
+    borderRadius: 10,
+    marginRight: 10,
+    borderColor: '#F0F2F4',
+    borderWidth: 1,
+    shadowColor: '#333',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 1,
     },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOpacity: 0.15,
+    shadowRadius: 2.41,
+    elevation: 2,
   },
   cardTop: {
     flexDirection: 'row',
-    alignItems: 'center',
   },
   cardIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 9999,
-    alignItems: 'center',
+    padding: 12,
     justifyContent: 'center',
-    backgroundColor: '#eff1f5',
+    alignItems: 'center',
+    borderRadius: 6,
+    backgroundColor: '#F0F2F4',
+    marginRight: 12,
   },
   cardBody: {
-    paddingLeft: 12,
+    justifyContent: 'center',
   },
   cardTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
-    lineHeight: 18,
-    color: '#121a26',
-    marginBottom: 4,
+    color: '#333',
   },
-  cardSubtitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    lineHeight: 18,
-    color: '#778599',
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 18,
-  },
-  cardFooterText: {
-    fontSize: 13,
-    fontWeight: '500',
-    lineHeight: 18,
-    color: '#778599',
-  },
-
-
-
 });

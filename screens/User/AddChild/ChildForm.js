@@ -15,12 +15,14 @@ import { useDispatch } from 'react-redux';
 import { colors } from '../../../assets/styles/colors';
 import * as ImagePicker from 'expo-image-picker';
 import { getSchoolsFromAdmins } from '../../../functions/getShools';
+import { ActivityIndicator } from 'react-native-paper';
 
 export default function ChildForm({user}) {
   const [schools, setSchools] = useState([]);
   const navigation = useNavigation();
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
   const dispatch = useDispatch();
+  const [loading , setLoading ]= useState(true)
   const [form, setForm] = useState({
     ecole: null,
     heureDepart: '',
@@ -63,6 +65,7 @@ export default function ChildForm({user}) {
           data: school
         }));
         setSchools(array);
+        setLoading(false)
       } catch (error) {
         console.error("Erreur lors de la récupération des écoles:", error);
       }
@@ -73,6 +76,7 @@ export default function ChildForm({user}) {
 
   const handleFilter = (value) => {
     setQuery(value);
+
     const filtered = schools.filter(suggestion =>
       suggestion.nom.toLowerCase().includes(value.toLowerCase())
     );
@@ -85,7 +89,10 @@ export default function ChildForm({user}) {
       style={styles.backgroundImage}
     >
       <View style={styles.overlay} />
-      <FlatList
+        {
+          loading ? <View style={{flex: 1, justifyContent: 'center' , alignItems: 'center'}}>
+            <ActivityIndicator color='white' size={50}/>
+          </View> : <FlatList
         data={[{ key: 'form' }]}
         renderItem={() => (
           <View style={{ flex: 1 }}>
@@ -189,7 +196,9 @@ export default function ChildForm({user}) {
               
                 <View style={styles.formAction}>
                   <TouchableOpacity onPress={() => {
-                    navigation.navigate('child-profile', { form });
+                    console.log(form.ecole)
+                    const child = form
+                    navigation.navigate('child-profile', { child });
                   }}>
                     <View style={styles.btn}>
                       <Text style={styles.btnText}>
@@ -203,6 +212,7 @@ export default function ChildForm({user}) {
           </View>
         )}
       />
+        }
     </ImageBackground>
   );
 }

@@ -16,7 +16,7 @@ function HomeScreen({user}) {
   const dispatch = useDispatch()
   const isSpoken = dispatch(hasSpoken(true))
   console.log(user)
-   speak('Bonjour  '+ user?.nom+'. Pour ajouter un enfant , veillez cliquer sur le bouton en blanc. Pour suivre le trajet d\'un enfant ,  selectionner ce dernier et cliquer sur le bouton "suivre le trajet"'  , isSpoken)
+ 
    
 
   return (

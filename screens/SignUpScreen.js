@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   TextInput,
   ImageBackground,
+  Alert,
 } from 'react-native';
 import { colors } from '../assets/styles/colors';
 import { StatusBar } from 'expo-status-bar';
@@ -33,6 +34,7 @@ function ListHeaderComponent({countries, lang, onPress}) {
         </View>
     )
 }
+const defaultCountry = {code: "CM", dial_code: "+237", "flag": "🇨🇲", "name": {"ar": "الكاميرون", "bg": "Камерун", "b  y": "Камерун", "cn": "喀麦隆", "cz": "Kamerun", "da": "Cameroun", "de": "Kamerun", "ee": "Kamerun", "el": "Καμερούν", "en": "Cameroon", "es": "Camerún", "fr": "Cameroun", "he": "קמרון", "it": "Camerun", "jp": "カメルーン", "nl": "Kameroen", "pl": "Kamerun", "pt": "Camarões", "ro": "Camerun", "ru": "Камерун", "tr": "Kamerun", "ua": "Камерун", "zh": "喀麥隆"}}
 export default function Register() {
   const navigation = useNavigation();
   const [show, setShow] = useState(false);
@@ -40,15 +42,19 @@ export default function Register() {
   const [form, setForm] = useState({
     nom: '',
     email: '',
-    password: '',
-    country: '',
+    country: 'Cameroun',
     city: '',
-    idType: '',
-    phoneNumber: '',
+    phone: '',
   });
+  const {email  , country , city , phone} = form
 
-  function loginScreen() {
-    navigation.navigate('connexion');
+  function next() {
+    if (email!==''&&country!==""&&city!==''&&phone!=="") {
+        const userData = form
+        navigation.navigate('inscription2' , {userData})  
+    }else{
+      Alert.alert('Formulaire mal rempli' , 'Veillez renseigner tous les champs ')
+    }
   }
 
   
@@ -89,16 +95,7 @@ export default function Register() {
                 style={styles.inputControl}
                 value={form.nom} />
             </View>
-            <View style={styles.input}>
-              <Ionicons name="person" size={20} color="#ffffff" style={styles.inputIcon} />
-              <TextInput
-                clearButtonMode="while-editing"
-                onChangeText={nom => setForm({ ...form, nom })}
-                placeholder="Prénom"
-                placeholderTextColor="#ffffff"
-                style={styles.inputControl}
-                value={form.nom} />
-            </View>
+          
 
 
             <View style={styles.input}>
@@ -164,17 +161,17 @@ export default function Register() {
               </Text>
               <TextInput
                 clearButtonMode="while-editing"
-                onChangeText={phoneNumber => setForm({ ...form, phoneNumber })}
+                onChangeText={phone => setForm({ ...form, phone })}
                 placeholder="Numéro de téléphone"
                 placeholderTextColor="#ffffff"
                 style={[styles.inputControl]}
                 keyboardType="phone-pad"
-                value={form.phoneNumber} />
+                value={form.phone} />
             </View>
 
             <View style={styles.formAction}>
               <TouchableOpacity onPress={()=>{
-                navigation.navigate('inscription2')
+                 next()
               }}>
                 <View style={styles.btn}>
                   <Text style={styles.btnText}>

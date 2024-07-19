@@ -1,36 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { View, Button, StyleSheet, Text, Dimensions, ImageBackground } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import React, { useState } from 'react';
+import { View, StyleSheet, Text, Dimensions, ImageBackground, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { TextInput } from 'react-native-paper';
-import { colors } from '../../../assets/styles/colors';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { TouchableOpacity } from 'react-native';
 import StackAppBarr from '../../../components/sections/User/Appbars/StackAppBar';
-import SearchMap from '../../../components/sections/User/IteConfig/Map';
-import { ScrollView } from 'react-native-gesture-handler';
-        const API_KEY = 'AIzaSyCNJXjPNJI96OQs2Qfin46-Ow7sSeXx8nA';
+import { colors } from '../../../assets/styles/colors';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+const API_KEY = 'AIzaSyCNJXjPNJI96OQs2Qfin46-Ow7sSeXx8nA';
 
 const ConfigResults = ({ user }) => {
-    const route = useRoute();
-    const [origin, setOrigin] = useState(null);
-    const [destination, setDestination] = useState(null);
-    const [originLocation, setOriginLocation] = useState(null);
-    const [destinationLocation, setDestinationLocation] = useState(null);
-    const navigation  = useNavigation()
-    const {child}= route.params
-      console.log(child)
-    const handleSearch = async () => {
-        if (!origin || !destination) {
-            alert("Veuillez sélectionner un lieu de départ et un lieu d'arrivée.");
-            return;
-        }1
-try {
+  const route = useRoute();
+  const [origin, setOrigin] = useState(null);
+  const navigation = useNavigation();
+  const { child } = route.params;
+  const destination = {
+    longitude: child?.ecole?.data?.longitude,
+    latitude: child?.ecole?.data?.latitude
+  };
+
+  const handleSearch = async () => {
+    if (!origin) {
+      alert("Veuillez sélectionner un lieu de départ.");
+      return;
+    }
+
+
+    try {
       const response = await axios.get(`https://maps.googleapis.com/maps/api/directions/json`, {
         params: {
           origin,
-          destination,
+          destination: `${destination.latitude},${destination.longitude}`,
           key: API_KEY
         }
       });
@@ -38,10 +38,8 @@ try {
       if (response.data.status === 'OK') {
         const routes = response.data.routes[0];
         const legs = routes.legs[0];
-        setOriginLocation(legs.start_location);
-        setDestinationLocation(legs.end_location);
-        navigation.navigate('ite-config-map' , {child: child, destination: legs.end_location  , origin: legs.start_location})
-        console.log(legs.start_location)
+       navigation.navigate('ite-config-map', { child, destination, origin: legs.start_location  , originName: origin });
+       console.log({child: child, destination, origin: legs.start_location })
       } else {
         console.error('Erreur dans la réponse de l\'API:', response.data.status);
       }
@@ -50,62 +48,45 @@ try {
     }
   };
 
-  
+  return (
+    <ImageBackground source={require('../../../assets/images/bg.png')} style={styles.backgroundImage}>
+      <View style={styles.overlay} />
 
-    return (
-        <ImageBackground  source={require('../../../assets/images/bg.png')} 
-      style={styles.backgroundImage}>
-              <View style={styles.overlay} />
+      <StackAppBarr title={"Calcul de l’itinéraire"} />
+      <View style={styles.searchContainer}>
+        <GooglePlacesAutocomplete
+          placeholder='Lieu de ramassage'
+          onPress={(data, details = null) => {
+            setOrigin(data.description);
+          }}
+          query={{
+            key: API_KEY,
+            language: 'fr',
+          }}
+          styles={{
+            textInputContainer: styles.textInputContainer,
+            textInput: styles.textInput,
+            predefinedPlacesDescription: styles.predefinedPlacesDescription,
+          }}
+        />
+      </View>
 
-            <StackAppBarr title={"Calcul de l’itinéraire"} />
-            <View style={styles.searchContainer}>
-                <View style={styles.searchInputs}>
-                    <View style={{ flex: 1, width: '40%' }}>
-                        <GooglePlacesAutocomplete
-                            placeholder='Lieu de ramassage'
-                            onPress={(data, details = null) => {
-                                setOrigin(data.description);
-                                 console.log(data.description);
-
-                            }}
-                            query={{
-                                key: API_KEY,
-                                language: 'fr',
-                            }}
-                        />
-                    </View>
-                    <View style={{ flex: 1, width: '40%', marginLeft: 10 }}>
-                        <GooglePlacesAutocomplete
-                            placeholder="Lieu de l'école"
-                            onPress={(data, details = null) => {
-                                setDestination(data.description);
-                                 console.log(data, details);
-
-                            }}
-                            query={{
-                                key: API_KEY,
-                                language: 'fr',
-                            }}
-                        />
-                    </View>
-                </View>
-            </View>
-          
-           <View style={{padding: 17}}>
-             <TouchableOpacity onPress={handleSearch} style={[styles.button, { height: 40, justifyContent: 'center' }]} >
-                <Text style={{ color: 'white', textAlign: 'center' }}>
-                    Rechercher
-                </Text>
-            </TouchableOpacity>
-           </View>
-        </ImageBackground>
-    );
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={handleSearch} style={styles.button}>
+          <Icon name="search" size={24} color="white" />
+          <Text style={styles.buttonText}>
+            Rechercher
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
+  );
 };
 
 const { width, height } = Dimensions.get('screen');
 
 const styles = StyleSheet.create({
-     backgroundImage: {
+  backgroundImage: {
     flex: 1,
     width: '100%',
     height: '100%',
@@ -115,35 +96,47 @@ const styles = StyleSheet.create({
     backgroundColor: '#3498db',
     opacity: 0.8,
   },
-    searchInputs: {
-        padding: 10,
-        flexDirection: 'row',
-        justifyContent: 'space-evenly',
-        flex: 1
-    },
-    searchContainer: {
-        padding: 10,
-        height: height * 0.75
-    },
-    mapContainer: {
-        flex: 0.5,
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        
-    },
-    map: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    input: {
-        width: '100%',
-        marginBottom: 20,
-    },
-    button: {
-        marginVertical: 10,
-        backgroundColor: colors.primary,
-        color: 'white',
-        borderRadius: 20
-    },
+  searchContainer: {
+    padding: 20,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  textInputContainer: {
+    backgroundColor: 'rgba(0,0,0,0)',
+    borderTopWidth: 0,
+    borderBottomWidth: 0,
+  },
+  textInput: {
+    height: 48,
+    color: '#5d5d5d',
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+  },
+  predefinedPlacesDescription: {
+    color: '#1faadb',
+  },
+  buttonContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  button: {
+    width: '100%',
+    backgroundColor: colors.primary,
+    borderRadius: 20,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 10,
+  },
 });
 
 export default ConfigResults;

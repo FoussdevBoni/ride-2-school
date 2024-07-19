@@ -9,19 +9,21 @@ import {
   ImageBackground,
   FlatList,
   Image,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { colors } from '../../../assets/styles/colors';
-import { RadioButton, Title } from 'react-native-paper';
+import { ActivityIndicator, RadioButton, Title } from 'react-native-paper';
 import Br from '../../../components/widgets/br/br';
+import axios from 'axios';
+import { addChild } from '../../../utils/api';
 
-export default function PayementForm() {
+export default function PayementForm({user}) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const [form, setForm] = useState({
-    nom: '',
+  const [formData, setFormData] = useState({
     moyenDePaiement: '',
     identifiant: '', // Ajouter une clé pour l'identifiant du compte
   });
@@ -29,22 +31,43 @@ export default function PayementForm() {
   const {souscription} = route.params
 
   const handleChange = (key, value) => {
-    setForm({
-      ...form,
+    setFormData({
+      ...formData,
       [key]: value
     });
   };
+  const [loading , setLoading ]= useState(false)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validation des champs
-    if (!form?.nom || !form?.moyenDePaiement || !form?.identifiant) {
+    if (!user?.nom || !formData?.moyenDePaiement || !formData?.identifiant) {
       alert("Veuillez remplir tous les champs");
       return;
     }
-    setForm({
-      ...form,
-            ...souscription,
-            abonnement: '65fad65b5c542bf7f4a33009'    });    navigation.navigate('child-profile' , {form})
+    setLoading(true)
+    try {
+      const child = {
+      ...formData,
+       ...souscription,
+        abonnement: '65fad65b5c542bf7f4a33009' ,
+        ecole: souscription.ecole.data._id,
+  
+      }
+      console.log(child)
+      const userId = user?.id ||user?._id
+      alert(userId)
+      const response = await axios.post(addChild+userId , child)
+     const data = response.data
+      console.log(data)
+      setLoading(false)
+      navigation.navigate('child-profile' , {child})
+
+    } catch (error) {
+      console.log(error)
+      Alert.alert('Echec' , "Une erreur s'est produite lors de l'ajout de l'enfant. Veillez réessayer à nouveau")
+       setLoading(false)
+    }
+
   };
 
   return (
@@ -54,7 +77,7 @@ export default function PayementForm() {
     >
       <View style={styles.overlay} />
       <FlatList
-        data={[{ key: 'form' }]}
+        data={[{ key: 'formData' }]}
         renderItem={() => (
           <View style={{ flex: 1 }}>
             <StatusBar style="light" />
@@ -78,23 +101,14 @@ export default function PayementForm() {
                 </View>
                 <Br size={20}/>
               <View style={styles.form}>
-                <View style={styles.input}>
-                  <Ionicons name="person-outline" size={20} color="#ffffff" style={styles.inputIcon} />
-                  <TextInput
-                    clearButtonMode="while-editing"
-                    onChangeText={nom => handleChange('nom', nom)}
-                    placeholder="Nom et prénom"
-                    placeholderTextColor="#ffffff"
-                    style={styles.inputControl}
-                    value={form.nom} />
-                </View>
+                
 
                 <View style={styles.paymentMethod}>
                   <Text style={styles.methodLabel}>Choisir le moyen de paiement :</Text>
                   
                   <RadioButton.Group
                     onValueChange={newValue => handleChange('moyenDePaiement', newValue)}
-                    value={form.moyenDePaiement}
+                    value={formData.moyenDePaiement}
                   >
                     <View style={styles.methodOption}>
                       <RadioButton value="Orange Money" color='white' />
@@ -131,10 +145,10 @@ export default function PayementForm() {
                   </RadioButton.Group>
                 </View>
 
-                {form.moyenDePaiement && (
+                {formData.moyenDePaiement && (
                   <View style={styles.input}>
                     <Ionicons
-                      name={form.moyenDePaiement === 'Carte Bancaire' ? "card-outline" : "phone-portrait-outline"}
+                      name={formData.moyenDePaiement === 'Carte Bancaire' ? "card-outline" : "phone-portrait-outline"}
                       size={20}
                       color="#ffffff"
                       style={styles.inputIcon}
@@ -142,11 +156,11 @@ export default function PayementForm() {
                     <TextInput
                       clearButtonMode="while-editing"
                       onChangeText={identifiant => handleChange('identifiant', identifiant)}
-                      placeholder={form.moyenDePaiement === 'Carte Bancaire' ? "Numéro de carte" : "Numéro de téléphone"}
+                      placeholder={formData.moyenDePaiement === 'Carte Bancaire' ? "Numéro de carte" : "Numéro de téléphone"}
                       placeholderTextColor="#ffffff"
-                      keyboardType={form.moyenDePaiement === 'Carte Bancaire' ? "numeric" : "phone-pad"}
+                      keyboardType={formData.moyenDePaiement === 'Carte Bancaire' ? "numeric" : "phone-pad"}
                       style={styles.inputControl}
-                      value={form.identifiant} />
+                      value={formData.identifiant} />
                   </View>
                 )}
 
@@ -154,7 +168,11 @@ export default function PayementForm() {
                   <TouchableOpacity onPress={handleSubmit}>
                     <View style={styles.btn}>
                       <Text style={styles.btnText}>
-                        Valider
+                         {
+                          loading ? <ActivityIndicator color={colors.primary
+
+                          } size={20}/>: " Valider"
+                         }
                       </Text>
                     </View>
                   </TouchableOpacity>

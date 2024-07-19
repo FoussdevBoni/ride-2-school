@@ -20,6 +20,7 @@ const R2SScreen = ({user}) => {
   const [visible , setVisible] = useState(false)
   const route = useRoute()
   const {selectedEnfants} = route.params
+  console.log('enfants à prendre' , selectedEnfants)
     return (
         <View style={{flex: 1 , justifyContent: 'center' , alignItems: 'center'}} >  
         {

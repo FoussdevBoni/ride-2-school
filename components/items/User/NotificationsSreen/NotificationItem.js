@@ -5,10 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Haptics } from 'expo';
 import formaterDateISO8601 from '../../../../functions/formatDate';
 
- const handleVibrate = () => {
-    // Déclenche une vibration sur le téléphone
-    Haptics.selectionAsync();
-  };
 
 const NotificationItem = ({ text, date }) => (
   <View style={styles.notificationItem}>
