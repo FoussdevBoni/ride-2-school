@@ -15,8 +15,6 @@ import { calculerTarif } from '../../../functions/tarifaction';
 import { getPrice } from '../../../functions/getPrice';
 import { ImageBackground } from 'react-native';
 
-
-
 export default function SuscriptionsOptions() {
   const [value, setValue] = React.useState(0);
   const route = useRoute()
@@ -29,36 +27,36 @@ export default function SuscriptionsOptions() {
   {
     label: 'Le bus',
     prix:  15000,
-    description: 'Le trans port avec le bus aefsb heev  fafavd gddye dkfb qvfssbsgd gdd.',
+    description: 'Le transport avec le bus aefsb heev fafavd gddye dkfb qvfssbsgd gdd.',
     route: 'choix-trajets'
   },
   {
     label: 'Mini-com',
-    prix: getPrice('Minicom' , suscription.distance , 1).toFixed(0),
-    description: 'Le minicom est le services nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
+    prix: getPrice('Minicom', suscription.distance, 1).toFixed(0),
+    description: 'Le minicom est le service nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
     route: 'choix-trajets'
   },
 
    {
     label: 'Privé',
-    prix: getPrice('Privé' , suscription.distance).toFixed(0),
-    description: 'Le minicom est le services nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
+    prix: getPrice('Privé', suscription.distance).toFixed(0),
+    description: 'Le service privé est nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
     route: 'choix-trajets'
   },
 
-]: [
+] : [
 
    {
     label: 'Mini-com',
-    prix: getPrice('Minicom' , suscription.distance , 1).toFixed(0),
-    description: 'Le minicom est le services nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
+    prix: getPrice('Minicom', suscription.distance, 1).toFixed(0),
+    description: 'Le minicom est le service nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
     route: 'choix-trajets'
   },
 
    {
     label: 'Privé',
-    prix: getPrice('Privé' , suscription.distance).toFixed(0),
-    description: 'Le minicom est le services nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
+    prix: getPrice('Privé', suscription.distance).toFixed(0),
+    description: 'Le service privé est nhdf affdh oedvd sfrav dgt aaafd bdddbc.',
     route: 'choix-trajets'
   },
 ]
@@ -66,13 +64,17 @@ const navigation = useNavigation()
   return (
     <ImageBackground  source={require('../../../assets/images/bg.png')}
       style={styles.backgroundImage}>
-              <View style={styles.overlay} />
+      <View style={styles.overlay} />
 
       <StatusBar style='light'/>
-      <StackAppBarr title='Choisir une option ' styles={{bgColor: colors.primary, textColor: 'white'}}/>
+      <StackAppBarr title='Choisir une option ' styles={{bgColor: colors.primary, textColor: 'white'}} goBack={navigation.goBack}/>
       <View style={styles.container}>
 
-        {items.map(({ label, prix, description , route }, index) => {
+        <Text style={styles.infoText}>
+          Veuillez choisir le service qui vous convient. Notez que les prix affichés ici sont des prix par trajet.
+        </Text>
+
+        {items.map(({ label, prix, description, route }, index) => {
           const isActive = value === index;
           const souscription = {
             ...suscription,
@@ -84,7 +86,7 @@ const navigation = useNavigation()
               key={index}
               onPress={() => {
                 setValue(index);
-                navigation.navigate(route , {souscription})
+                navigation.navigate(route, {souscription})
               }}>
               <View style={[styles.radio, isActive && styles.radioActive]}>
                 <View style={styles.radioTop}>
@@ -106,21 +108,22 @@ const styles = StyleSheet.create({
   container: {
     padding: 24,
   },
-   backgroundImage: {
+  backgroundImage: {
     flex: 1,
     width: '100%',
     height: '100%',
   },
-    overlay: {
+  overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: '#3498db',
     opacity: 0.8,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#1d1d1d',
+  infoText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#fff',
     marginBottom: 12,
+    textAlign: 'center',
   },
   /** Radio */
   radio: {

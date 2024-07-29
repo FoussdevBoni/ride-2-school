@@ -27,7 +27,7 @@ const Map = ({ user, enfants }) => {
 
   useEffect(() => {
     function getDriversPosition() {
-      const enfant = enfants[2];
+      const enfant = enfants[0];
       const driverId = enfant?.chauffeur || '662f7219e0c118cc16276a3f';
       const dataRef = ref(db, 'locations/' + driverId);
       onValue(dataRef, (snapshot) => {
@@ -37,8 +37,8 @@ const Map = ({ user, enfants }) => {
           setSpeed(data.speed);
           if (mapRef.current) {
             mapRef.current.animateToRegion({
-              latitude: data.location.latitude,
-              longitude: data.location.longitude,
+              latitude: data?.location?.latitude,
+              longitude: data?.location?.longitude,
               latitudeDelta: 0.005, // Zoom plus élevé
               longitudeDelta: 0.005, // Zoom plus élevé
             }, 1000); // Animation en 1 seconde
@@ -54,12 +54,12 @@ const Map = ({ user, enfants }) => {
       const origine = enfants[0]?.ramassage[0];
       const destination = enfants[0]?.lieudepot[0];
       setRamassage({
-        latitude: origine.latitude,
-        longitude: origine.lontidute,
+        latitude: origine?.latitude,
+        longitude: origine?.lontidute,
       });
       setLieudepot({
-        latitude: destination.latitude,
-        longitude: destination.lontidute,
+        latitude: destination?.latitude,
+        longitude: destination?.lontidute,
       });
     }
   }, [enfants]);
@@ -82,9 +82,9 @@ const Map = ({ user, enfants }) => {
   useEffect(() => {
     if (location !== null) {
       const coords = [
-        { latitude: parseFloat(location.latitude), longitude: parseFloat(location.longitude) },
-        { latitude: parseFloat(ramassage.latitude), longitude: parseFloat(ramassage.longitude) },
-        { latitude: parseFloat(lieudepot.latitude), longitude: parseFloat(lieudepot.longitude) },
+        { latitude: parseFloat(location?.latitude), longitude: parseFloat(location?.longitude) },
+        { latitude: parseFloat(ramassage?.latitude), longitude: parseFloat(ramassage?.longitude) },
+        { latitude: parseFloat(lieudepot?.latitude), longitude: parseFloat(lieudepot?.longitude) },
       ];
       setRoute(coords);
       let totalDistance = 0;
@@ -112,14 +112,14 @@ const Map = ({ user, enfants }) => {
         ref={mapRef}
         style={styles.map}
         initialRegion={{
-          latitude: location.latitude,
-          longitude: location.longitude,
+          latitude: location?.latitude,
+          longitude: location?.longitude,
           latitudeDelta: 0.005, // Zoom plus élevé
           longitudeDelta: 0.005, // Zoom plus élevé
         }}
         region={{
-          latitude: location.latitude,
-          longitude: location.longitude,
+          latitude: location?.latitude,
+          longitude: location?.longitude,
           latitudeDelta: 0.005, // Zoom plus élevé
           longitudeDelta: 0.005, // Zoom plus élevé
         }}
@@ -127,8 +127,8 @@ const Map = ({ user, enfants }) => {
       >
         <Marker
           coordinate={{
-            latitude: parseFloat(location.latitude),
-            longitude: parseFloat(location.longitude),
+            latitude: parseFloat(location?.latitude),
+            longitude: parseFloat(location?.longitude),
           }}
           title={'Le chauffeur'}
           pinColor="red"
@@ -146,8 +146,8 @@ const Map = ({ user, enfants }) => {
           <Marker
             key={item._id}
             coordinate={{
-              latitude: parseFloat(item.ramassage[0].latitude),
-              longitude: parseFloat(item.ramassage[0].lontidute),
+              latitude: parseFloat(item?.ramassage[0]?.latitude),
+              longitude: parseFloat(item?.ramassage[0]?.lontidute),
             }}
             title={item.nom}
           >
@@ -157,8 +157,8 @@ const Map = ({ user, enfants }) => {
 
         <MapViewDirections
           origin={{
-            latitude: parseFloat(location.latitude),
-            longitude: parseFloat(location.longitude),
+            latitude: parseFloat(location?.latitude),
+            longitude: parseFloat(location?.longitude),
           }}
           destination={{
             latitude: parseFloat(enfants[0].ramassage[0].latitude),

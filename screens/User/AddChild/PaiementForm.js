@@ -29,7 +29,7 @@ export default function PayementForm({user}) {
   });
   const route = useRoute()
   const {souscription} = route.params
-
+  const {preference}  = route.params
   const handleChange = (key, value) => {
     setFormData({
       ...formData,
@@ -51,11 +51,13 @@ export default function PayementForm({user}) {
        ...souscription,
         abonnement: '65fad65b5c542bf7f4a33009' ,
         ecole: souscription.ecole.data._id,
-  
+        prix: souscription.prix*25,
+        preference,
       }
+      
       console.log(child)
       const userId = user?.id ||user?._id
-      alert(userId)
+      console.log(addChild+userId )
       const response = await axios.post(addChild+userId , child)
      const data = response.data
       console.log(data)
@@ -96,7 +98,7 @@ export default function PayementForm({user}) {
               </View>
               <View style={styles.form}>
                     <Title style={{color: 'white'}}>
-                  Montant à payer  ({souscription.prix*25})
+                  Montant à payer  ({souscription.prix*25} F CFA)
                 </Title>
                 </View>
                 <Br size={20}/>

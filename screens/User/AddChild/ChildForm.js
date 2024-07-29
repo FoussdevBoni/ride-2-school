@@ -30,7 +30,8 @@ export default function ChildForm({user}) {
     class: '',
     nom: '',
     email: user.email,
-    dateNaissance: ''
+    dateNaissance: '',
+    adresse: ""
   });
 
   const handleChange = (key, value) => {
@@ -138,6 +139,16 @@ export default function ChildForm({user}) {
                     placeholderTextColor="#ffffff"
                     style={styles.inputControl}
                     value={form.nom} />
+                </View>
+                 <View style={styles.input}>
+                  <Ionicons name="location-outline" size={20} color="#ffffff" style={styles.inputIcon} />
+                  <TextInput
+                    clearButtonMode="while-editing"
+                    onChangeText={adresse => handleChange('adresse', adresse)}
+                    placeholder="Quelle est le quartier de l'enfant"
+                    placeholderTextColor="#ffffff"
+                    style={styles.inputControl}
+                    value={form.adresse} />
                 </View>
                   <View style={styles.input}>
                   <Ionicons name="person-outline" size={20} color="#ffffff" style={styles.inputIcon} />

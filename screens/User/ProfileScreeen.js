@@ -44,7 +44,7 @@ const loGout = ()=>{
   const navigation= useNavigation()
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <StackAppBarr title={'Mon profile'} goBack={navigation.goBack}/>
+      <StackAppBarr title={'Mon profil'} goBack={navigation.goBack}/>
       <View style={styles.container}>
         <ScrollView>
           <View style={styles.content}>

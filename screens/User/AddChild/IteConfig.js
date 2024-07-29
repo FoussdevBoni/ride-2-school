@@ -6,6 +6,7 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import StackAppBarr from '../../../components/sections/User/Appbars/StackAppBar';
 import { colors } from '../../../assets/styles/colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { ActivityIndicator } from 'react-native-paper';
 
 const API_KEY = 'AIzaSyCNJXjPNJI96OQs2Qfin46-Ow7sSeXx8nA';
 
@@ -13,11 +14,14 @@ const ConfigResults = ({ user }) => {
   const route = useRoute();
   const [origin, setOrigin] = useState(null);
   const navigation = useNavigation();
+  const [localisation , setLocaalisaion] = useState('')
   const { child } = route.params;
   const destination = {
     longitude: child?.ecole?.data?.longitude,
     latitude: child?.ecole?.data?.latitude
   };
+
+  const [loading , setLoading ]= useState(false)
 
   const handleSearch = async () => {
     if (!origin) {
@@ -25,6 +29,7 @@ const ConfigResults = ({ user }) => {
       return;
     }
 
+        setLoading(true)
 
     try {
       const response = await axios.get(`https://maps.googleapis.com/maps/api/directions/json`, {
@@ -38,10 +43,12 @@ const ConfigResults = ({ user }) => {
       if (response.data.status === 'OK') {
         const routes = response.data.routes[0];
         const legs = routes.legs[0];
-       navigation.navigate('ite-config-map', { child, destination, origin: legs.start_location  , originName: origin });
+                setLoading(false)
+       navigation.navigate('ite-config-map', { child, destination, origin: legs.start_location  , originName: origin , localisation  });
        console.log({child: child, destination, origin: legs.start_location })
       } else {
         console.error('Erreur dans la réponse de l\'API:', response.data.status);
+        setLoading(false)
       }
     } catch (error) {
       console.error('Erreur lors de la requête:', error);
@@ -52,12 +59,14 @@ const ConfigResults = ({ user }) => {
     <ImageBackground source={require('../../../assets/images/bg.png')} style={styles.backgroundImage}>
       <View style={styles.overlay} />
 
-      <StackAppBarr title={"Calcul de l’itinéraire"} />
+      <StackAppBarr title={"Calcul de l’itinéraire"} goBack={navigation.goBack}/>
       <View style={styles.searchContainer}>
         <GooglePlacesAutocomplete
           placeholder='Lieu de ramassage'
           onPress={(data, details = null) => {
             setOrigin(data.description);
+            setLocaalisaion(data.description)
+            console.log(data.description)
           }}
           query={{
             key: API_KEY,
@@ -73,10 +82,11 @@ const ConfigResults = ({ user }) => {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={handleSearch} style={styles.button}>
-          <Icon name="search" size={24} color="white" />
-          <Text style={styles.buttonText}>
-            Rechercher
+           {
+            loading ? <ActivityIndicator size={20} color='white'/> :  <Text style={styles.buttonText}>
+            Continuer
           </Text>
+           }
         </TouchableOpacity>
       </View>
     </ImageBackground>

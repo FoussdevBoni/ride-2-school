@@ -34,7 +34,7 @@ const MapRoutes = ({user}) => {
   const [isLoading , setIsLoading] = useState(false)
   const navigation = useNavigation()
   const navRoutes  = useRoute()
-  const { origin, destination , child } = navRoutes.params
+  const { origin, destination , child , localisation } = navRoutes.params
 
   const [distance , setDistance] = useState(0)
   const originLocation = { latitude: origin?.lat ?? 0, longitude: origin?.lng ?? 0 };
@@ -76,7 +76,8 @@ const MapRoutes = ({user}) => {
   const suscribe =async ()=>{
       const suscription = {
         ...child,
-        distance,
+        distance: parseFloat(distance),
+        localisation,
         ramassage:{lontidute: +""+originLocation.longitude+"" , latitude: +""+originLocation.latitude+"" } ,
         lieudepot:{lontidute: +""+destinationLocation.longitude+"" , latitude: +""+destinationLocation.latitude+"" }
       }
