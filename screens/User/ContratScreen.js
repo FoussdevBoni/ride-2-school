@@ -44,41 +44,7 @@ const ContratScreen = ({user}) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Statut de votre contrat</Text>
-        
-
-
-      </View>
-
-      <View>
-          <ProgressBar
-          progress={status}
-          color={getStatusColor(status)}
-          style={{ backgroundColor: 'white', height: 10, borderRadius: 5 }}
-        />
-      </View>
-      {
-        status===0.49&&(
-             <Text style={styles.observationText}>
-            Votre compte serait inactif dans peu de temps. Veuillez renouveller votre contrat
-          </Text>
-        )
-      }
-      {status === 0 && (
-        <View style={styles.inactiveContainer}>
-          <Text style={styles.inactiveText}>
-            Votre compte est inactif. Veuillez contacter l'école pour réactiver votre contrat.
-          </Text>
-          {status === 'inactif' && (
-        <Button mode="contained" onPress={handleReactivate} style={styles.button}>
-          <Text style={{color: 'white'}}> Activer votre compte</Text>
-        </Button>
-      )}
-
-
-     </View>
-      )}
+     
 
              <View style={{flex: 1}}>
              <Children user={user} />

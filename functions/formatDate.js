@@ -18,8 +18,7 @@
   minutes = minutes < 10 ? '0' + minutes : minutes;
 
   // Formater la date selon le modèle "dd/mm/yyyy, HH:mm"
-  var dateFormatee = jour + '/' + mois + '/' + annee + ' , ' + heures + ':' + minutes;
-
+  var dateFormatee = jour + '/' + mois + '/' + annee 
   return dateFormatee;
 }
 

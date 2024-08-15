@@ -24,6 +24,7 @@ import { createParent } from '../utils/api';
 import { useDispatch } from 'react-redux';
 import { isConected, login } from '../redurcer/userSlice';
 import { FlatList } from 'react-native';
+import { Select } from 'native-base';
 
 export default function Register2() {
   const navigation = useNavigation();
@@ -124,24 +125,23 @@ export default function Register2() {
             </View>
             <View style={styles.input}>
               <Ionicons name="card-outline" size={20} color="#ffffff" style={styles.inputIcon} />
-              <TextInput
-                clearButtonMode="while-editing"
-               onChangeText={idType => {
-                handleFilter(idType)
-                setForm({ ...form, idType })
-               }}
-                placeholder="Type de document d'identification"
-                placeholderTextColor="#ffffff"
-                style={styles.inputControl}
-                value={query} />
-                 {filteredSuggestions.length > 0 && (
-                    <FlatList
-                      data={filteredSuggestions}
-                      renderItem={renderItem}
-                      keyExtractor={(item, index) => index.toString()}
-                      style={styles.autocomplete}
-                    />
-                  )}
+                <Select fontWeight={'bold'} fontSize={15} placeholderTextColor={'white'} color={'white'} variant ='unstyled' dropdownCloseIcon={()=> null}  style={{borderWidth: -50 , borderColor: 'red', color: 'white' }}  selectedValue={form.ecole?.nom} 
+                     minWidth="200" accessibilityLabel="Choisir l'école de l'enfant "  placeholder={form.idType ? form.idType: "Choisir un type de document"}  
+                     onValueChange={(idType)=>{
+                       setForm({ ...form, idType })
+                     }}
+                     _selectedItem={{
+                  bg: "teal.600",
+                  color: 'white'
+              }} mt={1} >
+           {
+            idTypes.map((item)=>{
+              return (
+                  <Select.Item color={'white'} label={item} value={item} />
+              )
+            })
+           }
+        </Select>
             </View>
             <View style={styles.input}>
               <Ionicons name="card-outline" size={20} color="#ffffff" style={styles.inputIcon} />

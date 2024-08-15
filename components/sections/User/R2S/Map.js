@@ -99,6 +99,15 @@ const Map = ({ user, enfants }) => {
       }
       setDistance(totalDistance.toFixed(2));
       speak('Le chauffeur est à ' + totalDistance.toFixed(2) + ' km de votre enfant');
+
+      if (totalDistance.toFixed(2)<0.1&&totalDistance.toFixed(2)>0) {
+
+          speak("Le chauffeur est proche de votre enfant");
+      }
+      if (totalDistance.toFixed(2)===0) {
+         speak("Le chauffeur est déjà au lieu de ramassage de votre enfant");
+      }
+      
     }
   }, [location, strokeColor, strokeWidth]);
 

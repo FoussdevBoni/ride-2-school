@@ -16,6 +16,8 @@ import { colors } from '../../../assets/styles/colors';
 import * as ImagePicker from 'expo-image-picker';
 import { getSchoolsFromAdmins } from '../../../functions/getShools';
 import { ActivityIndicator } from 'react-native-paper';
+import { Select } from 'native-base';
+import { saveSchools } from '../../../redurcer/schoolsSlice';
 
 export default function ChildForm({user}) {
   const [schools, setSchools] = useState([]);
@@ -67,11 +69,12 @@ export default function ChildForm({user}) {
         }));
         setSchools(array);
         setLoading(false)
+        dispatch(saveSchools(array))
       } catch (error) {
         console.error("Erreur lors de la récupération des écoles:", error);
       }
     }
-
+   
     fetchSchools();
   }, []);
 
@@ -113,22 +116,24 @@ export default function ChildForm({user}) {
               <View style={styles.form}>
                 <View style={styles.input}>
                   <Ionicons name="school-outline" size={20} color="#ffffff" style={styles.inputIcon} />
-                  <TextInput
-                    clearButtonMode="while-editing"
-                    onChangeText={ecole => handleFilter(ecole)}
-                    placeholder="L'école de l'enfant"
-                    placeholderTextColor="#ffffff"
-                    style={styles.inputControl}
-                    value={query}
-                  />
-                  {filteredSuggestions.length > 0 && (
-                    <FlatList
-                      data={filteredSuggestions}
-                      renderItem={renderItem}
-                      keyExtractor={(item, index) => index.toString()}
-                      style={styles.autocomplete}
-                    />
-                  )}
+                     <Select fontWeight={'bold'} fontSize={15} placeholderTextColor={'white'} color={'white'} variant ='unstyled' dropdownCloseIcon={()=> null}  style={{borderWidth: -50 , borderColor: 'red', color: 'white' }}  selectedValue={form.ecole?.nom} 
+                     minWidth="200" accessibilityLabel="Choisir l'école de l'enfant "  placeholder={form.ecole?.nom ? form.ecole?.nom: "Choisir l'école de l'enfant"}  
+                     onValueChange={(ecole)=>{
+                      handleChange('ecole', ecole)
+                     }}
+                     _selectedItem={{
+                  bg: "teal.600",
+                  color: 'white'
+              }} mt={1} >
+           {
+            schools.map((item)=>{
+              return (
+                  <Select.Item color={'white'} label={item.nom} value={item} />
+              )
+            })
+           }
+        </Select>
+
                 </View>
                 <View style={styles.input}>
                   <Ionicons name="person-outline" size={20} color="#ffffff" style={styles.inputIcon} />

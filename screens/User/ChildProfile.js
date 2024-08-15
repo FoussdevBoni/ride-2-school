@@ -19,20 +19,17 @@ import StackAppBarr from '../../components/sections/User/Appbars/StackAppBar';
 import { takePhoto } from './../../functions/uploadPhoto';
 import Br from '../../components/widgets/br/br';
 import { Rating } from 'react-native-elements';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
+import formaterDateISO8601 from '../../functions/formatDate';
 
 const CARD_WIDTH = Math.min(Dimensions.get('screen').width * 0.75, 400);
 
 export default function ChildProfile() {
   const route = useRoute();
   const { child } = route.params;
-
-
-  const stats = [
-    { label: 'Ecole', value: child?.ecole?.nom },
-    { label: 'Classe', value: child?.class },
-    { label: 'Date de naissance', value: child?.dateNaissance },
-  ];
-
+  const schools = useSelector((state) => state.schools);
+  console.log(child)
   const [photo, setPhoto] = useState('');
 
   const addPhoto = async () => {
@@ -41,12 +38,28 @@ export default function ChildProfile() {
     if (response.uploadResp?.downloadUrl) {
       child.photo = response.uploadResp?.downloadUrl;
       setPhoto(response.uploadResp?.downloadUrl);
-      console.log(child?.photo);
     }
   };
 
-  const performance = child.performance || 0.3;
-  const revenuSatus = child.revenuSatus || 0.9;
+  const calculateSubscriptionLevel = () => {
+    const startDate = new Date(child?.dateAbonnement);
+    const endDate = new Date(child?.dateFinAbonnement);
+    const today = new Date();
+
+    const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+    const daysPassed = Math.ceil((today - startDate) / (1000 * 60 * 60 * 24));
+    const remainingDays = totalDays - daysPassed;
+
+    return Math.max(0, remainingDays / totalDays); // Ensure the level is between 0 and 1
+  };
+
+  const subscriptionLevel = calculateSubscriptionLevel();
+
+  const stats = [
+    { label: 'Ecole', value: child?.ecole?.nom || child?.ecole?.nomEcole },
+    { label: 'Classe', value: child?.class },
+   
+  ];
 
   const getStatusColor = (status) => {
     if (status <= 0.3) {
@@ -58,24 +71,29 @@ export default function ChildProfile() {
     }
   };
 
+  const startDate  = child.dateAbonnement ? formaterDateISO8601(child.dateAbonnement): new Date().toDateString()
+  const endDate  = child.dateFinAbonnement ? formaterDateISO8601(child.dateFinAbonnement): new Date().toDateString()
+
   const items = [
-    {
-      icon: 'star',
-      label: 'Note globale',
-      render: <Rating startingValue={5} readonly imageSize={15} />,
-    },
-    {
-      icon: 'user',
-      label: 'Niveau d\'abonnement',
-      render: (
+  {
+    icon: 'user',
+    label: "Niveau d'abonnement",
+    render: (
+      <>
         <ProgressBar
-          progress={revenuSatus}
-          color={getStatusColor(revenuSatus)}
+          progress={subscriptionLevel}
+          color={getStatusColor(subscriptionLevel)}
           style={{ backgroundColor: '#eff1f5', height: 10, borderRadius: 5 }}
         />
-      ),
-    },
-  ];
+        <View style={styles.dateContainer}>
+          <Text style={styles.dateText}>Début: {startDate}</Text>
+          <Text style={styles.dateText}>Fin: {endDate}</Text>
+        </View>
+      </>
+    ),
+  },
+];
+
 
   const navigation = useNavigation();
 
@@ -85,7 +103,7 @@ export default function ChildProfile() {
         <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
           <StackAppBarr title={child?.nom} goBack={navigation.goBack} />
           <View style={styles.container}>
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
               <View style={styles.content}>
                 <View style={styles.profile}>
                   <View style={styles.profileTop}>
@@ -108,6 +126,7 @@ export default function ChildProfile() {
                     </View>
                   </View>
                 </View>
+
                 <View style={styles.stats}>
                   {stats.map(({ label, value }, index) => (
                     <View
@@ -131,23 +150,19 @@ export default function ChildProfile() {
                     </View>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => {
-                      addPhoto();
-                    }}
+                    onPress={addPhoto}
                     style={{ flex: 1, paddingHorizontal: 6 }}
                   >
                     <View style={styles.btn}>
-                      <Text style={styles.btnText}>
-                        Ajouter une photo
-                      </Text>
+                      <Text style={styles.btnText}>Ajouter une photo</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
                 <List.Section>
-                  {child.abonnement && child.chauffeur && (
+                  {child.abonnement && (
                     <View style={styles.list}>
                       <View style={styles.listHeader}>
-                        <Text style={styles.listTitle}>Progression des données</Text>
+                        <Text style={styles.listTitle}>Abonnement et note</Text>
                       </View>
                       <View
                         contentContainerStyle={styles.listContent}
@@ -227,6 +242,29 @@ export default function ChildProfile() {
                       />
                     </TouchableOpacity>
                     <Divider />
+                    {child.distance && (
+                      <TouchableOpacity>
+                        <List.Item
+                          title="Distance à parcourir"
+                          left={() => <Ionicons name="walk" size={30} style={{ marginLeft: 10 }} />}
+                          description={`${child?.distance} km`}
+                        />
+                      </TouchableOpacity>
+                    )}
+
+                     <Divider />
+                    {child.prix && (
+                      <TouchableOpacity>
+                        <List.Item
+                          title="Prix du transport"
+                          left={() => <Ionicons name="cash" size={30} style={{ marginLeft: 10 }} />}
+                          description={`${child?.prix} F CFA`}
+                        />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </List.Section>
+                 <Divider />
                     {!child.abonnement ? (
                       <TouchableOpacity
                         onPress={() => {
@@ -275,8 +313,6 @@ export default function ChildProfile() {
                         </View>
                       </TouchableOpacity>
                     )}
-                  </View>
-                </List.Section>
               </View>
             </ScrollView>
           </View>
@@ -288,154 +324,141 @@ export default function ChildProfile() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 0,
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 0,
-    backgroundColor: '#fff',
+    flex: 1,
+    backgroundColor: '#F9F9F9',
+    padding: 10,
   },
   content: {
-    flex: 1,
-    paddingHorizontal: 12,
+    paddingBottom: 50,
   },
   profile: {
-    width: '100%',
-    padding: 12,
+    justifyContent: 'center',
+    paddingHorizontal: 15
   },
   profileTop: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   profileBody: {
-    justifyContent: 'center',
-    flexShrink: 1,
-    paddingLeft: 20,
+    marginLeft: 15,
   },
   profileTitle: {
-    fontSize: 22,
     fontWeight: 'bold',
-    color: '#1f1f1f',
-    marginBottom: 8,
+    fontSize: 22,
+    color: '#333',
   },
   profileSubtitle: {
     fontSize: 16,
-    color: '#1f1f1f',
+    color: '#999',
+    marginTop: 4,
   },
   avatar: {
-    width: 90,
-    height: 90,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   avatarImg: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 99,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
   stats: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 10,
-    backgroundColor: '#F0F2F4',
-    borderRadius: 5,
-    padding: 8,
+    justifyContent: 'space-between',
+    marginVertical: 20,
+    paddingHorizontal: 15,
   },
   statsItem: {
-    flex: 1,
-    paddingHorizontal: 12,
-    borderLeftColor: '#E5E5E5',
+    alignItems: 'center',
     borderLeftWidth: 1,
+    borderLeftColor: '#E5E5E5',
+    paddingLeft: 15,
   },
   statsItemText: {
-    fontSize: 12,
-    fontWeight: '500',
-    textAlign: 'center',
-    color: '#A8ADB7',
-    marginBottom: 6,
+    fontSize: 16,
+    color: '#666',
   },
   statsItemValue: {
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 4,
   },
   contentActions: {
-    marginTop: 16,
     flexDirection: 'row',
-  },
-  btn: {
-    backgroundColor: '#F0F2F4',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 10,
+    marginBottom: 30,
   },
   btnPrimary: {
     backgroundColor: colors.primary,
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-  },
-  btnText: {
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'center',
-    color: '#333',
-  },
-  btnPrimaryText: {
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'center',
-    color: '#fff',
-  },
-  list: {
-    marginTop: 10,
-    paddingHorizontal: 8,
-    backgroundColor: '#F0F2F4',
+    alignItems: 'center',
     borderRadius: 5,
   },
+  btnPrimaryText: {
+    color: '#FFF',
+    fontSize: 16,
+  },
+  btn: {
+    backgroundColor: '#E0E0E0',
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 5,
+  },
+  btnText: {
+    color: '#333',
+    fontSize: 16,
+  },
+  list: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    marginVertical: 10,
+    elevation: 1,
+    padding: 10,
+  },
   listHeader: {
-    paddingHorizontal: 12,
-    paddingTop: 15,
-    paddingBottom: 15,
+    paddingBottom: 10,
   },
   listTitle: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: '#333',
   },
   listContent: {
-    paddingVertical: 10,
+    flexDirection: 'row',
+    marginBottom: 20,
   },
   card: {
-    width: CARD_WIDTH,
     backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
+    borderRadius: 8,
     marginRight: 10,
-    borderColor: '#F0F2F4',
-    borderWidth: 1,
-    shadowColor: '#333',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 2.41,
+    width: CARD_WIDTH,
     elevation: 2,
   },
   cardTop: {
     flexDirection: 'row',
+    padding: 15,
   },
   cardIcon: {
-    padding: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 6,
-    backgroundColor: '#F0F2F4',
-    marginRight: 12,
+    marginRight: 15,
   },
   cardBody: {
-    justifyContent: 'center',
+    flex: 1,
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
     color: '#333',
   },
+    dateContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 5,
+  },
+  dateText: {
+    fontSize: 12,
+    color: '#666',
+  },
 });
+
